@@ -176,9 +176,12 @@ class mtf:
         :return: Smearing MTF
         """
 
-        Hsmear = np.ones([len(fnAlt), ncolumns]) * fnAlt
+        Hsmear = np.zeros([fnAlt.shape[0], ncolumns])
 
-        Hsmear = np.sinc(ksmear * Hsmear)
+        for i in range(ncolumns):
+            Hsmear[:, i] = fnAlt
+
+        Hsmear = np.sinc(Hsmear * ksmear)
 
         return Hsmear
 

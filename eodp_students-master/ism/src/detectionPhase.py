@@ -110,7 +110,7 @@ class detectionPhase(initIsm):
 
         E_in = toa * area_pix * tint
 
-        E_photon = h * C/wv
+        E_photon = h * c/wv
 
         toa_ph = E_in/E_photon
 
@@ -139,17 +139,19 @@ class detectionPhase(initIsm):
         :return: toa in e- including bad & dead pixels
         """
 
-        toa_act = toa.shape[2]
+        toa_act = toa.shape[1]
 
-        n_pix_bad = toa_act * 
-        n_pix_dead =
+        n_pix_bad = int(toa_act * bad_pix/100)
+        n_pix_dead = int(toa_act * dead_pix/100)
 
-        step_bad = int()
-        step_dead =
+        step_bad = int(toa_act/n_pix_bad)
+        step_dead = int(toa_act/n_pix_dead)
 
         idx_bad = range(5, toa_act, step_bad)   # Distribute evenly in the CCD
         idx_dead = range(0, toa_act, step_dead)
 
+        toa[:, idx_bad] = toa[:, idx_bad] * (1 - bad_pix_red)
+        toa[:, idx_dead] = toa[:, idx_dead] * (1 - dead_pix_red)
 
         return toa
 
@@ -160,7 +162,11 @@ class detectionPhase(initIsm):
         :param kprnu: multiplicative factor to the standard normal deviation for the PRNU
         :return: TOA after adding PRNU [e-]
         """
-        #TODO
+
+        PRNU = np.random.normal(0, 1, 1) * kprnu
+
+        toa = toa * (1 + PRNU)
+
         return toa
 
 
@@ -175,5 +181,13 @@ class detectionPhase(initIsm):
         :param ds_B_coeff: Empirical parameter of the model 6040 K
         :return: TOA in [e-] with dark signal
         """
-        #TODO
+
+        DSNU = np.abs(np.random.normal(0, 1, 1)) * kdsnu
+
+        Sd = ds_A_coeff * (T/Tref)**3 * np.exp(-ds_B_coeff * (1/T - 1/Tref))
+
+        DS = Sd * (1 + DSNU)
+
+        toa = toa + DS
+
         return toa
