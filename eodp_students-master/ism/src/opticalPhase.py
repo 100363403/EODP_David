@@ -11,6 +11,7 @@ from common.plot.plotMat2D import plotMat2D
 from common.plot.plotF import plotF
 from scipy.signal import convolve2d
 from common.src.auxFunc import getIndexBand
+import os
 
 class opticalPhase(initIsm):
 
@@ -92,7 +93,9 @@ class opticalPhase(initIsm):
         :param Tr: Optical transmittance [-]
         :return: TOA image in irradiances [mW/m2]
         """
-        # TODO
+
+        toa = Tr * toa * pi/4 * (D/f)**2
+
         return toa
 
 
@@ -103,7 +106,11 @@ class opticalPhase(initIsm):
         :param Hsys: System MTF
         :return: TOA image in irradiances [mW/m2]
         """
-        # TODO
+
+        GE = fft2(toa)
+
+        toa_ft = np.real(ifft2(GE * fftshift(Hsys)))
+
         return toa_ft
 
     def spectralIntegration(self, sgm_toa, sgm_wv, band):
@@ -114,7 +121,20 @@ class opticalPhase(initIsm):
         :param band: band
         :return: TOA image 2D in radiances [mW/m2]
         """
-        # TODO
+
+        ISRF, wv_ISRF = readIsrf(os.path.join(self.auxdir,self.ismConfig.isrffile), band)
+
+        ISRF_norm = ISRF/np.sum(ISRF)
+
+        toa = np.zeros([sgm_toa.shape[0], sgm_toa.shape[1]])
+
+        for i in range(toa.shape[0]):
+            for j in range(toa.shape[1]):
+
+                ISRF_interp = np.interp(sgm_wv, wv_ISRF * 1000, ISRF_norm)
+
+                toa[i, j] = np.sum(sgm_toa[i, j, :] * ISRF_interp)
+
         return toa
 
 
