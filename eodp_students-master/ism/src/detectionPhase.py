@@ -141,8 +141,8 @@ class detectionPhase(initIsm):
 
         toa_act = toa.shape[1]
 
-        n_pix_bad = int(toa_act * bad_pix/100)
-        n_pix_dead = int(toa_act * dead_pix/100)
+        n_pix_bad = toa_act * bad_pix/100
+        n_pix_dead = toa_act * dead_pix/100
 
         step_bad = int(toa_act/n_pix_bad)
         step_dead = int(toa_act/n_pix_dead)
