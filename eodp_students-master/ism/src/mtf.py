@@ -215,6 +215,57 @@ class mtf:
         :param band: band
         :return: N/A
         """
-        #TODO
 
+        mAlt = int(nlines/2)
+        mAct = int(ncolumns/2)  # central pixels
+
+        # code provided as example for plotting in the "Quickstart to Python for MATLAB Programmers"
+
+        # Plot MTF ALT along middle cut of the MTF ACT
+        fig = plt.figure(figsize=(20,10))
+        plt.plot(-fnAlt[0:mAlt], abs(Hdiff[0:mAlt,mAct]), label='Diffraction MTF')
+        plt.plot(-fnAlt[0:mAlt], abs(Hdefoc[0:mAlt,mAct]), label='Defocus MTF')
+        plt.plot(-fnAlt[0:mAlt], abs(Hwfe[0:mAlt,mAct]), label='WFE Aberrations MTF')
+        plt.plot(-fnAlt[0:mAlt], abs(Hdet[0:mAlt,mAct]), label='Detector MTF')
+        plt.plot(-fnAlt[0:mAlt], abs(Hsmear[0:mAlt,mAct]), label='Smearing MTF')
+        plt.plot(-fnAlt[0:mAlt], abs(Hmotion[0:mAlt,mAct]), label='Motion blur MTF')
+        plt.plot(-fnAlt[0:mAlt], abs(Hsys[0:mAlt,mAct]), 'k', linewidth=3, label='System MTF')
+        auxv = np.arange(0,1.1,0.1)
+        plt.plot(0.5*np.ones(auxv.shape), auxv, '--k', linewidth=3, label='f Nyquist')
+        plt.title('System MTF ALT - slice of ACT - for '+band, fontsize=16)
+        plt.xlabel('Spatial frequencies f/(1/w) [-]', fontsize=16)
+        plt.ylabel('MTF', fontsize=16)
+        plt.grid()
+        plt.legend()
+        saveas_str = 'system_mtf_cutAct_'+band
+        savestr = directory + "/" + saveas_str
+        plt.savefig(savestr)
+        plt.close(fig)
+        print("Saved image " + savestr)
+
+        # Plot MTF ACT along middle cut of the MTF ALT
+
+        # mAlt = int(nlines/2)  # central pixels
+        # mAct = int(ncolumns/2)
+
+        fig = plt.figure(figsize=(20,10))
+        plt.plot(-fnAct[0:mAct], abs(Hdiff[mAlt,0:mAct]), label='Diffraction MTF')
+        plt.plot(-fnAct[0:mAct], abs(Hdefoc[mAlt,0:mAct]), label='Defocus MTF')
+        plt.plot(-fnAct[0:mAct], abs(Hwfe[mAlt,0:mAct]), label='WFE Aberrations MTF')
+        plt.plot(-fnAct[0:mAct], abs(Hdet[mAlt,0:mAct]), label='Detector MTF')
+        plt.plot(-fnAct[0:mAct], abs(Hsmear[mAlt,0:mAct]), label='Smearing MTF')
+        plt.plot(-fnAct[0:mAct], abs(Hmotion[mAlt,0:mAct]), label='Motion blur MTF')
+        plt.plot(-fnAct[0:mAct], abs(Hsys[mAlt,0:mAct]), 'k', linewidth=3, label='System MTF')
+        auxv = np.arange(0,1.1,0.1)
+        plt.plot(0.5*np.ones(auxv.shape), auxv, '--k', linewidth=3, label='f Nyquist')
+        plt.title('System MTF ACT - slice of ALT - for '+band, fontsize=16)
+        plt.xlabel('Spatial frequencies f/(1/w) [-]', fontsize=16)
+        plt.ylabel('MTF', fontsize=16)
+        plt.grid()
+        plt.legend()
+        saveas_str = 'system_mtf_cutAlt_'+band
+        savestr = directory + "/" + saveas_str
+        plt.savefig(savestr)
+        plt.close(fig)
+        print("Saved image " + savestr)
 
