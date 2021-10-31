@@ -245,9 +245,6 @@ class mtf:
 
         # Plot MTF ACT along middle cut of the MTF ALT
 
-        # mAlt = int(nlines/2)  # central pixels
-        # mAct = int(ncolumns/2)
-
         fig = plt.figure(figsize=(20,10))
         plt.plot(-fnAct[0:mAct], abs(Hdiff[mAlt,0:mAct]), label='Diffraction MTF')
         plt.plot(-fnAct[0:mAct], abs(Hdefoc[mAlt,0:mAct]), label='Defocus MTF')
