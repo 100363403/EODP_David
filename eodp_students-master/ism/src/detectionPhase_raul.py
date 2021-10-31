@@ -104,15 +104,16 @@ class detectionPhase(initIsm):
         :param wv: Central wavelength of the band [m]
         :return: Toa in photons
         """
+        h = 6.6260608696*1e-34
+        c = 2.99792458*1e8
 
-        h = 6.2606896e-34
-        c = 2.99792458e+8
+        E_in = toa * area_pix * tint *1e-3
+        E_ph = h*c/wv
 
-        E_in = toa/1000 * area_pix * tint
+        toa_ph = E_in/E_ph
 
-        E_photon = h * c/wv
-
-        toa_ph = E_in/E_photon
+        factor = area_pix*tint/E_ph
+        self.logger.info('Irrad2Phot factor: ' + str("%1.3e" % factor) + '\n')
 
         return toa_ph
 
@@ -124,17 +125,24 @@ class detectionPhase(initIsm):
         :return: toa in electrons
         """
 
-        toa_e = toa * QE
+        toae = toa*QE
+        self.logger.info('Phot2Electr factor: ' + str("%0.3f" % QE) + '\n')
+        n_pix = toa.shape[0]*toa.shape[1]
 
-        for i in range(toa_e.shape[0]):
-            for j in range(toa_e.shape[1]):
+        fwc = self.ismConfig.FWC # Full well Capacity
+        n_sat = 0
 
-                if toa_e[i, j] < self.ismConfig.FWC:
-                    toa_e[i, j] = toa_e[i, j]
-                else:
-                    toa_e[i, j] = self.ismConfig.FWC
+        for i in range(toa.shape[0]):
+            for j in range(toae.shape[1]):
+                if toae[i,j] > fwc:
+                    toae[i,j] = fwc # Saturation reached
+                    n_sat = n_sat + 1
 
-        return toa_e
+        sat_per = n_sat/n_pix*100
+
+        self.logger.info('Number saturated pixels: ' + str('%i' % n_sat))
+        self.logger.info('Percentage saturated pixels: ' + str("%1.3e" % sat_per) + ' % \n')
+        return toae
 
     def badDeadPixels(self, toa,bad_pix,dead_pix,bad_pix_red,dead_pix_red):
         """
@@ -149,17 +157,18 @@ class detectionPhase(initIsm):
 
         toa_act = toa.shape[1]
 
-        n_pix_bad = toa_act * bad_pix/100
-        n_pix_dead = toa_act * dead_pix/100
+        n_pix_bad  = int(bad_pix*toa_act/100)
+        n_pix_dead = int(dead_pix*toa_act/100)
 
-        step_bad = int(toa_act/n_pix_bad)
-        step_dead = int(toa_act/n_pix_dead)
+        if n_pix_bad != 0:
+            step_bad  = int(toa_act/n_pix_bad)
+            idx_bad  = range(5, toa_act, step_bad)
+            toa[:, idx_bad]  = toa[:, idx_bad] * (1 - bad_pix_red)
 
-        idx_bad = range(5, toa_act, step_bad)   # Distribute evenly in the CCD
-        idx_dead = range(0, toa_act, step_dead)
-
-        toa[:, idx_bad] = toa[:, idx_bad] * (1 - bad_pix_red)
-        toa[:, idx_dead] = toa[:, idx_dead] * (1 - dead_pix_red)
+        if  n_pix_dead != 0:
+            step_dead = int(toa_act/n_pix_dead)
+            idx_dead = range(0, toa_act, step_dead)
+            toa[:, idx_dead] = toa[:, idx_dead] * (1 - dead_pix_red)
 
         return toa
 
@@ -170,10 +179,9 @@ class detectionPhase(initIsm):
         :param kprnu: multiplicative factor to the standard normal deviation for the PRNU
         :return: TOA after adding PRNU [e-]
         """
-
         for i in range(toa.shape[1]):
-            PRNU = np.random.normal(0, 1, 1) * kprnu
-            toa[:, i] = toa[:, i] * (1+PRNU)
+            prnu = np.random.normal(0, 1.0)*kprnu
+            toa[:,i] = toa[:,i]*(1 + prnu)
 
         return toa
 
@@ -189,12 +197,23 @@ class detectionPhase(initIsm):
         :param ds_B_coeff: Empirical parameter of the model 6040 K
         :return: TOA in [e-] with dark signal
         """
+        Sd = ds_A_coeff * (T / Tref)**3 * np.exp(-ds_B_coeff * (1/T - 1/Tref))
 
-        Sd = ds_A_coeff*(T/Tref)**3*np.exp(-ds_B_coeff*(1/T-1/Tref))
-
+        toa_dsnu = np.zeros(toa.shape)
         for i in range(toa.shape[1]):
-            DSNU = np.absolute(np.random.normal(0, 1, 1))*kdsnu
-            DS = Sd*(1+DSNU)
-            toa[:, i] = toa[:, i] + DS
+            dsnu = np.abs(np.random.normal(0,1))*kdsnu
+            ds = Sd * (1+dsnu)
 
-        return toa
+            toa_dsnu[:,i] = toa[:,i] + ds
+
+        return toa_dsnu
+
+
+        # Sd = ds_A_coeff * (T / Tref)**3 * np.exp(-ds_B_coeff * (1/T - 1/Tref))
+        #
+        # for i in range(toa.shape[1]):
+        #     dsnu = np.abs(np.random.normal(0,1))*kdsnu
+        #     ds = Sd*(1+dsnu)
+        #     toa[:,i] = toa[:,i] + ds
+        #
+        # return toa

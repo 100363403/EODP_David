@@ -1,89 +1,27 @@
-from common.io.writeToa import readToa
 import numpy as np
-
-indir_test = '/home/luss/my_shared_folder/EODP_TER_2021/EODP-TS-ISM/test_ism/'
-indir_ref = '/home/luss/my_shared_folder/EODP_TER_2021/EODP-TS-ISM/output/'
-
-opt_toa_VNIR_0_Test = readToa(indir_test, 'ism_toa_optical_VNIR-0.nc')
-opt_toa_VNIR_0_Ref = readToa(indir_ref, 'ism_toa_optical_VNIR-0.nc')
-
-opt_toa_VNIR_1_Test = readToa(indir_test, 'ism_toa_optical_VNIR-1.nc')
-opt_toa_VNIR_1_Ref = readToa(indir_ref, 'ism_toa_optical_VNIR-1.nc')
-
-opt_toa_VNIR_2_Test = readToa(indir_test, 'ism_toa_optical_VNIR-2.nc')
-opt_toa_VNIR_2_Ref = readToa(indir_ref, 'ism_toa_optical_VNIR-2.nc')
-
-opt_toa_VNIR_3_Test = readToa(indir_test, 'ism_toa_optical_VNIR-3.nc')
-opt_toa_VNIR_3_Ref = readToa(indir_ref, 'ism_toa_optical_VNIR-3.nc')
+from common.io.writeToa import writeToa, readToa
+from config import globalConfig
+import matplotlib.pyplot as plt
 
 
-Error_VNIR_0 = np.zeros([opt_toa_VNIR_0_Test.shape[0], opt_toa_VNIR_0_Test.shape[1]])
-Error_VNIR_1 = np.zeros([opt_toa_VNIR_1_Test.shape[0], opt_toa_VNIR_1_Test.shape[1]])
-Error_VNIR_2 = np.zeros([opt_toa_VNIR_2_Test.shape[0], opt_toa_VNIR_2_Test.shape[1]])
-Error_VNIR_3 = np.zeros([opt_toa_VNIR_3_Test.shape[0], opt_toa_VNIR_3_Test.shape[1]])
+gC = globalConfig.globalConfig()
 
-Nerror_VNIR_0 = 0
-Nerror_VNIR_1 = 0
-Nerror_VNIR_2 = 0
-Nerror_VNIR_3 = 0
+dir_test = "/home/luss/my_shared_folder/EODP_TER_2021/EODP-TS-ISM/test_ism/"    # test data
+dir_luss = "/home/luss/my_shared_folder/EODP_TER_2021/EODP-TS-ISM/output/"      # reference data
 
-NZeros = 0
+print('Check error in Optical Phase:\n')
 
-for i in range(opt_toa_VNIR_0_Test.shape[0]):
-    for j in range(opt_toa_VNIR_0_Test.shape[1]):
+for band in gC.bands:
+    toa_test = readToa(dir_test, gC.ism_toa_optical + band + '.nc')
+    toa_luss = readToa(dir_luss, gC.ism_toa_optical + band + '.nc')
 
-        # --------------------------------------------------------------------------------------------------------------
-        # Error in VNIR 0 band
-        if opt_toa_VNIR_0_Ref[i, j] == 0:
-            Error_VNIR_0[i, j] = np.absolute((opt_toa_VNIR_0_Ref[i, j] -opt_toa_VNIR_0_Test[i, j]))
-            Nzeros = NZeros+1
-        else:
-            Error_VNIR_0[i, j] = np.absolute((opt_toa_VNIR_0_Ref[i, j] -opt_toa_VNIR_0_Test[i, j])/opt_toa_VNIR_0_Ref[i, j])*100
+    n_points = toa_luss.shape[0] * toa_luss.shape[1]
 
-        if Error_VNIR_0[i, j] > 0.01/100:
-            Nerror_VNIR_0 = Nerror_VNIR_0+1
+    relative_err = np.absolute((toa_test - toa_luss)/toa_luss)
+    mean_err = np.mean(relative_err)
+    standard_err = np.std(relative_err)
 
-        # --------------------------------------------------------------------------------------------------------------
-        # Error in VNIR 1 band
-        if opt_toa_VNIR_1_Ref[i, j] == 0:
-            Error_VNIR_1[i, j] = np.absolute((opt_toa_VNIR_1_Ref[i, j] -opt_toa_VNIR_1_Test[i, j]))
-        else:
-            Error_VNIR_1[i, j] = np.absolute((opt_toa_VNIR_1_Ref[i, j] -opt_toa_VNIR_1_Test[i, j] )/opt_toa_VNIR_1_Ref[i, j])*100
+    points_out = np.sum(np.absolute(relative_err - mean_err) > (3 * standard_err))   # number of points outside of the 3 sigma
+    points_out_per = points_out/n_points * 100      # percentage of points outside of the 3 sigma
+    print("For band " + band + ": " + str("%0.3f" % points_out_per) + '% of points are outside 3 sigma')
 
-        if Error_VNIR_1[i, j] > 0.01/100:
-            Nerror_VNIR_1 = Nerror_VNIR_1+1
-
-        # --------------------------------------------------------------------------------------------------------------
-        # Error in VNIR 2 band
-
-        if opt_toa_VNIR_2_Ref[i, j] == 0:
-            Error_VNIR_2[i, j] = np.absolute((opt_toa_VNIR_2_Ref[i, j] -opt_toa_VNIR_2_Test[i, j]))
-
-        else:
-            Error_VNIR_2[i, j] = np.absolute((opt_toa_VNIR_2_Ref[i, j] -opt_toa_VNIR_2_Test[i, j] )/opt_toa_VNIR_2_Ref[i, j])*100
-
-        if Error_VNIR_2[i, j] > 0.01/100:
-            Nerror_VNIR_2 = Nerror_VNIR_2+1
-
-        # --------------------------------------------------------------------------------------------------------------
-        # Error in VNIR 3 band
-        if opt_toa_VNIR_3_Ref[i, j] == 0:
-            Error_VNIR_3[i, j] = np.absolute((opt_toa_VNIR_3_Ref[i, j] -opt_toa_VNIR_3_Test[i, j]))
-        else:
-            Error_VNIR_3[i, j] = np.absolute((opt_toa_VNIR_3_Ref[i, j] -opt_toa_VNIR_3_Test[i, j] )/opt_toa_VNIR_3_Ref[i, j])*100
-
-        if Error_VNIR_3[i, j] > 0.01/100:
-            Nerror_VNIR_3 = Nerror_VNIR_3+1
-
-
-sizeToa = opt_toa_VNIR_0_Ref.size
-
-PercError_VNIR_0 = Nerror_VNIR_0/sizeToa*100
-PercError_VNIR_1 = Nerror_VNIR_1/sizeToa*100
-PercError_VNIR_2 = Nerror_VNIR_2/sizeToa*100
-PercError_VNIR_3 = Nerror_VNIR_3/sizeToa*100
-
-print('The percentage of wrong elements comparing the reference and the obtained optical TOA in VNIR 0 is ', PercError_VNIR_0, '%')
-print('The percentage of wrong elements comparing the reference and the obtained optical TOA in VNIR 1 is ', PercError_VNIR_1, '%')
-print('The percentage of wrong elements comparing the reference and the obtained optical TOA in VNIR 2 is ', PercError_VNIR_2, '%')
-print('The percentage of wrong elements comparing the reference and the obtained optical TOA in VNIR 3 is ', PercError_VNIR_3, '%')

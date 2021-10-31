@@ -9,15 +9,15 @@ gC = globalConfig.globalConfig()
 dir_test = "/home/luss/my_shared_folder/EODP_TER_2021/EODP-TS-ISM/test_ism/"    # test data
 dir_luss = "/home/luss/my_shared_folder/EODP_TER_2021/EODP-TS-ISM/output/"      # reference data
 
-print('Check error in Optical Phase:\n')
+print('Check error in Detection and Video Conversion:\n')
 
 for band in gC.bands:
-    toa_test = readToa(dir_test, gC.ism_toa_isrf + band + '.nc')
-    toa_luss = readToa(dir_luss, gC.ism_toa_isrf + band + '.nc')
+    toa_test = readToa(dir_test, gC.ism_toa + band + '.nc')
+    toa_luss = readToa(dir_luss, gC.ism_toa + band + '.nc')
 
     n_points = toa_luss.shape[0] * toa_luss.shape[1]
 
-    relative_err = np.absolute((toa_test - toa_luss)/(toa_luss+1e-6))
+    relative_err = np.absolute((toa_test - toa_luss)/toa_luss)
     mean_err = np.mean(relative_err)
     standard_err = np.std(relative_err)
 
