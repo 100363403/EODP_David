@@ -85,3 +85,5 @@ print('The percentage of wrong elements comparing the reference and the obtained
 print('The percentage of wrong elements comparing the reference and the obtained isrf TOA in VNIR 1 is ', PercError_VNIR_1, '%')
 print('The percentage of wrong elements comparing the reference and the obtained isrf TOA in VNIR 2 is ', PercError_VNIR_2, '%')
 print('The percentage of wrong elements comparing the reference and the obtained isrf TOA in VNIR 3 is ', PercError_VNIR_3, '%')
+
+print('')

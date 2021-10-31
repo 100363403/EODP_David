@@ -108,7 +108,7 @@ class detectionPhase(initIsm):
         h = 6.2606896e-34
         c = 2.99792458e+8
 
-        E_in = toa * area_pix * tint
+        E_in = toa/1000 * area_pix * tint
 
         E_photon = h * c/wv
 
@@ -125,6 +125,14 @@ class detectionPhase(initIsm):
         """
 
         toa_e = toa * QE
+
+        for i in range(toa_e.shape[0]):
+            for j in range(toa_e.shape[1]):
+
+                if toa_e[i, j] < self.ismConfig.FWC:
+                    toa_e[i, j] = toa_e[i, j]
+                else:
+                    toa_e[i, j] = self.ismConfig.FWC
 
         return toa_e
 
@@ -163,9 +171,9 @@ class detectionPhase(initIsm):
         :return: TOA after adding PRNU [e-]
         """
 
-        PRNU = np.random.normal(0, 1, 1) * kprnu
-
-        toa = toa * (1 + PRNU)
+        for i in range(toa.shape[1]):
+            PRNU = np.random.normal(0, 1, 1) * kprnu
+            toa[:, i] = toa[:, i] * (1+PRNU)
 
         return toa
 
@@ -182,12 +190,11 @@ class detectionPhase(initIsm):
         :return: TOA in [e-] with dark signal
         """
 
-        DSNU = np.abs(np.random.normal(0, 1, 1)) * kdsnu
+        Sd = ds_A_coeff*(T/Tref)**3*np.exp(-ds_B_coeff*(1/T-1/Tref))
 
-        Sd = ds_A_coeff * (T/Tref)**3 * np.exp(-ds_B_coeff * (1/T - 1/Tref))
-
-        DS = Sd * (1 + DSNU)
-
-        toa = toa + DS
+        for i in range(toa.shape[1]):
+            DSNU = np.absolute(np.random.normal(0, 1, 1))*kdsnu
+            DS = Sd*(1+DSNU)
+            toa[:, i] = toa[:, i] + DS
 
         return toa
