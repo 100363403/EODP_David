@@ -58,6 +58,9 @@ class videoChainPhase(initIsm):
 
         toa = toa * OCF * gain_adc
 
+        print('\nVideo Conversion Factors:')
+        print('  Electrons to Volts factor:  ' + str(OCF * gain_adc) + '\n')
+
         return toa
 
     def digitisation(self, toa, bit_depth, min_voltage, max_voltage):
@@ -71,6 +74,16 @@ class videoChainPhase(initIsm):
         """
 
         toa_dn = np.round(toa/(max_voltage - min_voltage) * (2**bit_depth - 1))
+
+        for i in range(toa_dn.shape[0]):
+            for j in range(toa_dn.shape[1]):
+                if toa_dn[i, j] > (2**bit_depth - 1):
+                    toa_dn[i, j] = (2**bit_depth - 1)
+
+                if toa_dn[i, j] < 0:
+                    toa_dn[i, j] = 0
+
+        print('\n  Volts to Digital Numbers factor:  ' + str(np.round(1/(max_voltage - min_voltage) * (2**bit_depth - 1))) + '\n')
 
         return toa_dn
 

@@ -4,6 +4,7 @@ import numpy as np
 from common.io.writeToa import writeToa
 from common.plot.plotMat2D import plotMat2D
 from common.plot.plotF import plotF
+from auxiliary.constants import constants
 
 class detectionPhase(initIsm):
 
@@ -105,14 +106,17 @@ class detectionPhase(initIsm):
         :return: Toa in photons
         """
 
-        h = 6.6260608696e-34
-        c = 2.99792458e8
+        h = self.constants.h_planck
+        c = self.constants.speed_light
 
         E_in = toa/1000 * area_pix * tint
 
         E_photon = h * c/wv
 
         toa_ph = E_in/E_photon
+
+        print('\nDetection Phase Factors:')
+        print('  Irradiance to Photons factor:  ' + str(area_pix * tint/(h * c/wv)) + '\n')
 
         return toa_ph
 
@@ -124,15 +128,17 @@ class detectionPhase(initIsm):
         :return: toa in electrons
         """
 
-        toa_e = toa * QE
+        toae = toa * QE
 
-        for i in range(toa_e.shape[0]):
-            for j in range(toa_e.shape[1]):
+        for i in range(toae.shape[0]):
+            for j in range(toae.shape[1]):
 
-                if toa_e[i, j] > self.ismConfig.FWC:
-                    toa_e[i, j] = self.ismConfig.FWC
+                if toae[i, j] > self.ismConfig.FWC:
+                    toae[i, j] = self.ismConfig.FWC
 
-        return toa_e
+        print('\n  Photons to Electrons factor:  ' + str(QE) + '\n')
+
+        return toae
 
     def badDeadPixels(self, toa,bad_pix,dead_pix,bad_pix_red,dead_pix_red):
         """
@@ -191,7 +197,7 @@ class detectionPhase(initIsm):
         Sd = ds_A_coeff * (T/Tref)**3 * np.exp(-ds_B_coeff * (1/T - 1/Tref))
 
         for i in range(toa.shape[1]):
-            DSNU = np.absolute(np.random.normal(0, 1.0))*kdsnu
+            DSNU = np.absolute(np.random.normal(0, 1.0)) * kdsnu
             DS = Sd * (1 + DSNU)
             toa[:, i] = toa[:, i] + DS
 
