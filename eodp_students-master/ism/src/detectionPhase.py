@@ -171,7 +171,7 @@ class detectionPhase(initIsm):
 
         for i in range(toa.shape[1]):
             PRNU = np.random.normal(0, 1.0) * kprnu
-            toa[:, i] = toa[:, i] * (1+PRNU)
+            toa[:, i] = toa[:, i] * (1 + PRNU)
 
         return toa
 
@@ -188,11 +188,11 @@ class detectionPhase(initIsm):
         :return: TOA in [e-] with dark signal
         """
 
-        Sd = ds_A_coeff*(T/Tref)**3*np.exp(-ds_B_coeff*(1/T-1/Tref))
+        Sd = ds_A_coeff * (T/Tref)**3 * np.exp(-ds_B_coeff * (1/T - 1/Tref))
 
         for i in range(toa.shape[1]):
             DSNU = np.absolute(np.random.normal(0, 1.0))*kdsnu
-            DS = Sd*(1+DSNU)
+            DS = Sd * (1 + DSNU)
             toa[:, i] = toa[:, i] + DS
 
         return toa

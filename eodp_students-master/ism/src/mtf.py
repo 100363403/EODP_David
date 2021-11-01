@@ -266,3 +266,8 @@ class mtf:
         plt.close(fig)
         print("Saved image " + savestr)
 
+        # provide values at f_nyquist
+
+        print('\n  MTF (ACT cut) value at Nyquist frequency for band ' + str(band) + ' is:  ' + str(abs(Hsys[0,mAct])))
+        print('  MTF (ALT cut) value at Nyquist frequency for band ' + str(band) + ' is:  ' + str(abs(Hsys[mAlt,0])) + ' \n')
+

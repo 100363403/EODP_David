@@ -96,6 +96,8 @@ class opticalPhase(initIsm):
 
         toa = Tr * toa * pi/4 * (D/f)**2
 
+        print('\n Conversion Factor is:  ' + str(Tr * pi/4 * (D/f)**2) + '\n')
+
         return toa
 
 
