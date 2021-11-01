@@ -1,39 +1,28 @@
-
-"""
-Check for all bands that the differences with respect to the output TOA (l1b_toa_)
-are <0.01% for at least 3-sigma of the points.
-"""
-import numpy
-
-from common.io import writeToa
+import numpy as np
+from common.io.writeToa import writeToa, readToa
 from config import globalConfig
+import matplotlib.pyplot as plt
 
-test_dir = '/home/luss/my_shared_folder/EODP_TER_2021/EODP-TS-L1B/test_l1b'
-luss_dir = '/home/luss/my_shared_folder/EODP_TER_2021/EODP-TS-L1B/output/'
 
 gC = globalConfig.globalConfig()
 
+test_dir = "/home/luss/my_shared_folder/EODP_TER_2021/EODP-TS-L1B/test_l1b"    # test data
+luss_dir = "/home/luss/my_shared_folder/EODP_TER_2021/EODP-TS-L1B/output/"      # reference output data
 
-# Equalizer
-for ii in range(4):
+print('Check error in L1B phase:\n')
 
-    test_toa = writeToa.readToa(test_dir, 'l1b_toa_eq_VNIR-' + str(ii) + '.nc')
+for band in gC.bands:
+    toa_test = readToa(test_dir, gC.l1b_toa_eq + band + '.nc')
+    toa_luss = readToa(luss_dir, gC.l1b_toa_eq + band + '.nc')
 
-    luss_toa = writeToa.readToa(luss_dir, 'l1b_toa_eq_VNIR-' + str(ii) + '.nc')
+    n_points = toa_luss.shape[0] * toa_luss.shape[1]
 
-    difference = numpy.max(numpy.absolute((test_toa - luss_toa)/luss_toa))
+    relative_err = np.absolute((toa_test - toa_luss)/toa_luss)
+    mean_err = np.mean(relative_err)
+    standard_err = np.std(relative_err)
 
-    print('\nEqualizer error for VNIR-' + str(ii) + ' is:  ' + str(difference) + ' %  \n')
+    points_out = np.sum(np.absolute(relative_err - mean_err) > (3 * standard_err))   # number of points outside of the 3 sigma
+    points_out_per = points_out/n_points * 100      # percentage of points outside of the 3 sigma
 
-
-# Restoration
-for ii in range(4):
-
-    test_toa = writeToa.readToa(test_dir, 'l1b_toa_VNIR-' + str(ii) + '.nc')
-
-    luss_toa = writeToa.readToa(luss_dir, 'l1b_toa_VNIR-' + str(ii) + '.nc')
-
-    difference = numpy.max(numpy.absolute((test_toa - luss_toa)/luss_toa))
-
-    print('\nRestoration error for VNIR-' + str(ii) + ' is:  ' + str(difference) + ' %  \n')
+    print("\n  For band " + band + ": " + str("%0.3f" % points_out_per) + '% of points are outside 3 sigma \n')
 
