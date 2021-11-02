@@ -130,13 +130,20 @@ class detectionPhase(initIsm):
 
         toae = toa * QE
 
+        n_pix = toa.shape[0] * toa.shape[1]
+        n_pix_sat = 0
+
         for i in range(toae.shape[0]):
             for j in range(toae.shape[1]):
 
                 if toae[i, j] > self.ismConfig.FWC:
                     toae[i, j] = self.ismConfig.FWC
+                    n_pix_sat = n_pix_sat + 1
 
         print('\n  Photons to Electrons factor:  ' + str(QE) + '\n')
+
+        print('  Number of saturated pixels:  ' + str(n_pix_sat))
+        print('  Percentage of saturated pixels:  ' + str(n_pix_sat/n_pix * 100) + '% \n')
 
         return toae
 
