@@ -47,7 +47,7 @@ class l1b(initL1b):
             # Write output TOA
             # -------------------------------------------------------------------------------
             writeToa(self.outdir, self.globalConfig.l1b_toa + band, toa)
-            #self.plotL1bToa(toa, self.outdir, band)
+            self.plotL1bToa(toa, self.outdir, band)
 
             self.logger.info("End of BAND " + band)
 
@@ -81,13 +81,13 @@ class l1b(initL1b):
 
         return toa_out
 
-    def plotL1bToa(selfself, toa_l1b, outdir, band):
+    def plotL1bToa(self, toa_l1b, outdir, band):
 
         plt.figure()
         plt.plot(toa_l1b)
         plt.title("Equalization and restoration of " + band)
         plt.xlabel("ACT [Pixel]")
         plt.ylabel("TOA [mW/sr/m2]")
-        plt.savefig(outdir + "l1b_toa_eq-" + band + '.png')
+        plt.savefig(outdir + "l1b_toa_eq_" + band + '.png')
 
         plt.close()
