@@ -12,8 +12,8 @@ l1b_dir = "/home/luss/my_shared_folder/EODP_TER_2021/EODP-TS-L1B/test_l1b/"
 ism_dir = "/home/luss/my_shared_folder/EODP_TER_2021/EODP-TS-ISM/test_ism/"
 
 for band in gC.bands:
-    toa_l1b_eq = readToa(l1b_dir, gC.l1b_toa + band + '.nc')
     toa_ism = readToa(ism_dir, gC.ism_toa_isrf + band + '.nc')
+    toa_l1b_eq = readToa(l1b_dir, gC.l1b_toa + band + '.nc')
     toa_l1b_no_eq = readToa(l1b_dir, gC.l1b_toa + band + '_noEq.nc')
 
     index_alt = int(toa_l1b_no_eq.shape[0]/2)         # central ALT position

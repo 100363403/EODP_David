@@ -47,7 +47,7 @@ class l1b(initL1b):
             # Write output TOA
             # -------------------------------------------------------------------------------
             writeToa(self.outdir, self.globalConfig.l1b_toa + band, toa)
-            self.plotL1bToa(toa, self.outdir, band)
+            #self.plotL1bToa(toa, self.outdir, band)
 
             self.logger.info("End of BAND " + band)
 

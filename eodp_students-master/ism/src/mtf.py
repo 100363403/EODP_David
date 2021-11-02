@@ -94,17 +94,17 @@ class mtf:
         eps = 1e-6
         xi_cutoff = D/lambd/focal
 
-        fstepAlt = 1/nlines/w
-        fstepAct = 1/ncolumns/w
+        f_step_Alt = 1/nlines/w
+        f_step_Act = 1/ncolumns/w
 
-        fAlt = np.arange(-1/(2*w), 1/(2*w)-eps, fstepAlt)
-        fAct = np.arange(-1/(2*w), 1/(2*w)-eps, fstepAct)
+        f_Alt = np.arange(-1/(2 * w), 1/(2 * w) - eps, f_step_Alt)
+        f_Act = np.arange(-1/(2 * w), 1/(2 * w) - eps, f_step_Act)
 
-        fnAlt = fAlt/(1/w)
-        fnAct = fAct/(1/w)
+        fnAlt = f_Alt/(1/w)
+        fnAct = f_Act/(1/w)
 
-        [fnAltxx, fnActxx] = np.meshgrid(fnAlt, fnAct, indexing = 'ij')
-        fn2D = np.sqrt(fnAltxx*fnAltxx + fnActxx*fnActxx)
+        [fn_Altxx, fn_Actxx] = np.meshgrid(fnAlt, fnAct, indexing='ij')
+        fn2D = np.sqrt(fn_Altxx * fn_Altxx + fn_Actxx * fn_Actxx)
 
         fr2D = fn2D * 1/w/xi_cutoff
 
@@ -244,7 +244,6 @@ class mtf:
         print("Saved image " + savestr)
 
         # Plot MTF ACT along middle cut of the MTF ALT
-
         fig = plt.figure(figsize=(20,10))
         plt.plot(-fnAct[0:mAct], abs(Hdiff[mAlt,0:mAct]), label='Diffraction MTF')
         plt.plot(-fnAct[0:mAct], abs(Hdefoc[mAlt,0:mAct]), label='Defocus MTF')
@@ -267,7 +266,6 @@ class mtf:
         print("Saved image " + savestr)
 
         # provide values at f_nyquist
-
         print('\n  MTF (ACT cut) value at Nyquist frequency for band ' + str(band) + ' is:  ' + str(abs(Hsys[0,mAct])))
         print('  MTF (ALT cut) value at Nyquist frequency for band ' + str(band) + ' is:  ' + str(abs(Hsys[mAlt,0])) + ' \n')
 
