@@ -24,11 +24,11 @@ for band in gC.bands:
 
     fig = plt.figure(figsize=(20,10))
 
-    for ii in range(100): # range(len(lat_l1c)):
+    for ii in range(100):  # range(len(lat_l1c)):
 
-      clr = jet(toa_l1c[ii]/max_toa)
+        clr = jet(toa_l1c[ii]/max_toa)
 
-      plt.plot(lon_l1c, lat_l1c, '.',color=clr, markersize=5)
+        plt.plot(lon_l1c, lat_l1c, '.',color='r', markersize=5)
 
     plt.title('Projection on ground', fontsize=20)
 
@@ -40,22 +40,24 @@ for band in gC.bands:
 
     plt.axis('equal')
 
-    plt.savefig(outdir + 'toa_' + band + '.png')
+    plt.savefig(outdir + 'l1c_toa_projection_' + band + '.png')
 
     plt.close(fig)
 
 
-# Plot values of TOA
+# Plot values of TOA on ground
 
 for band in gC.bands:
 
     [toa, lat, lon] = readL1c(outdir, 'l1c_toa_'+ band + '.nc')
     jet = cm.get_cmap('jet', toa.shape[0])
+
+    # convert negative values to 0
     toa[np.argwhere(toa<0)] = 0
     max_toa = np.max(toa)
 
     plt.figure()
-    plt.scatter(lon,lat, c=toa, s=2)
+    plt.scatter(lon, lat, c=toa, s=2)
     plt.jet()
     plt.colorbar()
 
@@ -64,8 +66,8 @@ for band in gC.bands:
     plt.ylabel("Latitude [deg]")
     plt.grid()
     plt.axis('equal')
-    plt.savefig(outdir + "l1c_toa_map-" + band + '.png')
-    # plt.show()
+    plt.savefig(outdir + "l1c_toa_map_" + band + '.png')
+
     plt.close()
 
 

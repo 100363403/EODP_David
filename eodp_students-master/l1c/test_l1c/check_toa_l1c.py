@@ -9,7 +9,7 @@ gC = globalConfig.globalConfig()
 indir_test = '/home/luss/my_shared_folder/EODP_TER_2021/EODP-TS-L1C/test_l1c/'    # test data
 indir_ref = '/home/luss/my_shared_folder/EODP_TER_2021/EODP-TS-L1C/output/'      # reference output data
 
-print('Check error in Detection and Video Conversion:\n')
+print('Check error in L1C phase:  \n')
 
 for band in gC.bands:
     toa_test = readToa(indir_test, gC.l1c_toa + band + '.nc')
@@ -28,7 +28,7 @@ for band in gC.bands:
 
     Error = np.zeros([toa_testSort.shape[0]])
 
-    N_Error = 0
+    n_error = 0
 
     for i in range(Error.shape[0]):
 
@@ -38,10 +38,10 @@ for band in gC.bands:
             Error[i] = np.absolute((toa_refSort[i] - toa_testSort[i])/toa_refSort[i])
 
         if Error[i] > 0.01/100:
-            N_Error = N_Error+1
+            n_error = n_error + 1
 
-    N_points = toa_testSort.size
+    n_points = toa_testSort.size
 
-    Npoints_out = N_Error/N_points*100
+    per_points_out = n_error / n_points * 100
 
-    print('\n\n For band ' + band + ', the number of points with error higher than 0.01% is ', Npoints_out, ' %  \n\n')
+    print('\n  For band ' + band + ', percentage of points with error higher than 0.01% is:  ', per_points_out, '%  \n')
